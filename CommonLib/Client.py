@@ -38,7 +38,7 @@ class Client():
             self.check_cmd(cmd_cls)
             return self.exec_cmd(cmd_cls, **option_args)
         elif getattr(self, 'cmd_%s' % str(cmd_cls.cmd_head)) is True:
-            print('cmd:%s 可用' % cmd_cls.cmd_head)
+            print('命令:%s 可用' % cmd_cls.cmd_head)
             retcode, cmd = cmd_cls.cmd_makeup(**option_args)
             if retcode != 0:
                 return retcode, retstr
@@ -46,7 +46,7 @@ class Client():
             retcode, retstr = cmd_cls.handle_ret(stdout, stderr, **option_args)
             return retcode, retstr
         else:
-            print('不支持cmd:%s' % cmd_cls.cmd_head)
+            print('不支持命令:%s' % cmd_cls.cmd_head)
             return retcode, retstr
 
     def check_cmd(self, cmd_cls: Base_Cmd):

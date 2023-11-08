@@ -11,7 +11,7 @@ class Terminal():
         self.username = username
         self.password = password
         self.type = ''
-        self.logger = MyLogger().logger
+        self.logger = logger.logger
         # ssh连接
         if self.port == 22:
             self.client = paramiko.SSHClient()
@@ -30,7 +30,8 @@ class Terminal():
             self.client.connect(hostname=self.host, port=self.port, username=self.username,
                                 password=self.password)
             self.logger.info('连接成功：host=%s port=%s' % (self.host, self.port))
-        # elif self.type == 'COM':
+        elif self.type == 'COM':
+            pass
 
     def close(self):
         self.client.close()

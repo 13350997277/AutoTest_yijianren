@@ -7,7 +7,7 @@ from CommonLib.Logger import *
 
 @pytest.fixture(scope='class')
 def setup_and_teardown(request):
-    request.cls.logger = MyLogger().logger
+    request.cls.logger = logger.logger
     request.cls.logger.info("==========初始化环境==========")
     request.cls.env = Env_Clinet
     client = Terminal(Env_Clinet.get('ip'), Env_Clinet.get('port'), Env_Clinet.get('username'),

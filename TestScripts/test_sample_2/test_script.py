@@ -7,8 +7,10 @@ from CommonLib.cmd_ethtool import *
 # setup与teardown前后只执行一次
 
 class Test_AutoTest():
+    @pytest.mark.must_pass
     def setup_class(self):
-        print("==========初始化环境==========")
+        self.logger = logger.logger
+        self.logger.info("==========初始化环境==========")
         self.env = Env_Clinet
         client = Terminal(Env_Clinet.get('ip'), Env_Clinet.get('port'), Env_Clinet.get('username'),
                           Env_Clinet.get('password'))
@@ -16,23 +18,23 @@ class Test_AutoTest():
         self.client = client
 
     def test_handle_1(self):
-        print('1.查询设备信息')
+        self.logger.info('1.查询设备信息')
         retcode, retstr = self.client.exec_cmd(ethtool(), **test_parameters[0])
         assert retcode == 0
 
-        print('2.查询设备信息')
+        self.logger.info('2.查询设备信息')
         retcode, retstr = self.client.exec_cmd(ethtool(), **test_parameters[1])
         assert retcode == -1
 
     def test_handle_2(self):
-        print('1.查询设备信息')
+        self.logger.info('1.查询设备信息')
         retcode, retstr = self.client.exec_cmd(ethtool(), **test_parameters[0])
         assert retcode == 0
 
-        print('2.查询设备信息')
+        self.logger.info('2.查询设备信息')
         retcode, retstr = self.client.exec_cmd(ethtool(), **test_parameters[1])
         assert retcode == -1
 
     def teardown_class(self):
-        print("==========断开环境连接==========")
+        self.logger.info("==========断开环境连接==========")
         self.client.close()

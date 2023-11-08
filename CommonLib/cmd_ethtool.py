@@ -7,7 +7,7 @@ class ethtool(Base_Cmd):
         super().__init__()
         self.cmd_head = 'ethtool'
         self.dev_name = 'dev_name'
-        self.logger = MyLogger().logger
+        self.logger = logger.logger
 
     def cmd_makeup(self, **option_args):
         retcode, retstr = -1, ''

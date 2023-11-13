@@ -3,17 +3,17 @@ import pytest
 from CommonLib.Logger import *
 
 
-def pytest_configure():
-    conf = configparser.ConfigParser()
-    conf.read('..\..\pytest.ini')
-    log_path = conf.get('log', 'log_file')
-    # log_file_format = conf.get('log', 'log_file_format')
-    log_file_level = conf.get('log', 'log_file_level')
-    testcase_name = os.path.basename(os.getcwd())
-    start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))
-    log_path += "%s_%s.log" % (testcase_name, start_time)
-    return_info = {'log_path': log_path, 'log_file_level': log_file_level}
-    return return_info
+# def pytest_configure():
+#     conf = configparser.ConfigParser()
+#     conf.read('..\..\pytest.ini')
+#     log_path = conf.get('log', 'log_file')
+#     # log_file_format = conf.get('log', 'log_file_format')
+#     log_file_level = conf.get('log', 'log_file_level')
+#     testcase_name = os.path.basename(os.getcwd())
+#     start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))
+#     log_path += "%s_%s.log" % (testcase_name, start_time)
+#     return_info = {'log_path': log_path, 'log_file_level': log_file_level}
+#     return return_info
 
 
 @pytest.hookimpl(hookwrapper=True)

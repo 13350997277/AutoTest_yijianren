@@ -5,11 +5,12 @@ from CommonLib.Logger import *
 
 
 class Terminal():
-    def __init__(self, host, port, username, password):
-        self.host = host
+    def __init__(self, ip, username, password, port=None, speed=115200):
+        self.ip = ip
         self.port = port
         self.username = username
         self.password = password
+        self.speed = speed
         self.type = ''
         self.logger = logger.logger
         # ssh连接
@@ -19,7 +20,7 @@ class Terminal():
             self.type = 'SSH'
         # com连接
         elif 'COM' in self.port:
-            self.client = serial.Serial(port, host, 3)
+            self.client = serial.Serial(port, speed, timeout=3)
             self.type = 'COM'
         # telnet连接
         else:
@@ -27,22 +28,50 @@ class Terminal():
 
     def connect(self):
         if self.type == 'SSH':
-            self.client.connect(hostname=self.host, port=self.port, username=self.username,
+            self.client.connect(hostname=self.ip, port=self.port, username=self.username,
                                 password=self.password)
-            self.logger.info('连接成功：host=%s port=%s' % (self.host, self.port))
+            self.logger.info('ssh连接成功：host=%s port=%s' % (self.ip, self.port))
         elif self.type == 'COM':
-            pass
+            if self.client.isOpen():
+                self.client.write('\r'.encode('utf-8'))
+                read = self.client.readlines()
+                for line in read:
+                    self.logger.info(line)
+                if 'login:' in read[-1].decode(encoding='utf-8'):
+                    self.client.write(self.username.encode('utf-8'))
+                    self.client.write('\r'.encode('utf-8'))
+                    read = self.client.read_until('Password:', 10240)
+                    self.logger.info(read)
+                    self.client.write(self.password.encode('utf-8'))
+                    self.client.write('\r'.encode('utf-8'))
+                    self.logger.info('com连接成功：host=%s port=%s' % (self.ip, self.port))
+                elif 'hkzy-ast2600:~#' in read[-1].decode(encoding='utf-8'):
+                    self.logger.info('com连接成功：host=%s port=%s' % (self.ip, self.port))
+            else:
+                self.logger.error('com连接失败：host=%s port=%s' % (self.ip, self.port))
 
     def close(self):
         self.client.close()
-        self.logger.info('连接关闭成功：host=%s port=%s' % (self.host, self.port))
+        if self.type == 'SSH':
+            self.logger.info('ssh连接关闭成功：host=%s port=%s' % (self.ip, self.port))
+        elif self.type == 'COM':
+            if not self.client.isOpen():
+                self.logger.info('com连接关闭成功：host=%s port=%s' % (self.ip, self.port))
+            else:
+                self.logger.error('com连接关闭成功：host=%s port=%s' % (self.ip, self.port))
 
     def send_cmd(self, cmd):
-        stdin, stdout, stderr = self.client.exec_command(cmd)
-        stdin, stdout, stderr = stdin, stdout.read().decode('utf-8'), stderr.read().decode('utf-8')
-        self.logger.info('命令发送成功:\n cmd=%s\n stdout=%s\n stderr=%s\n' % (
-            cmd, stdout, stderr))
-        return stdout, stderr
+        if self.type == 'SSH':
+            stdin, stdout, stderr = self.client.exec_command(cmd)
+            stdin, stdout, stderr = stdin, stdout.read().decode('utf-8'), stderr.read().decode('utf-8')
+            self.logger.info('ssh命令发送成功:\n cmd=%s\n stdout=%s\n stderr=%s\n' % (
+                cmd, stdout, stderr))
+            return stdout, stderr
+        elif self.type == 'COM':
+            self.client.write(cmd.encode('utf-8'))
+            self.client.write('\r'.encode('utf-8'))
+            read = self.client.read_until('hkzy-ast2600:~#', 10240)
+            self.logger.info('com命令发送成功:\n cmd=%s\n stdout=%s\n' % (cmd, read))
 
     def exec_cmd(self, cmd_cls: Base_Cmd, **option_args):
         retcode, retstr = -1, ''
